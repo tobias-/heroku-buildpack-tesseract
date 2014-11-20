@@ -2,6 +2,26 @@
 
 DEFAULT_MAVEN_VERSION="3.2.3"
 
+restore_node_cache() {
+  local cacheDir=$1
+  local buildDir=$2
+  if [ ! -d ${cacheDir}/node_cache ]; then
+	mkdir -p ${cacheDir}/node_cache
+  else 
+	tar jxpf ${cacheDir}/node_cache/cache.tbz ${buildDir}/youcruit-server/youcruit-web/
+  fi
+}
+
+
+update_node_cache() {
+  local cacheDir=$1
+  local buildDir=$2
+  if [ -d ${cacheDir/node_cache ]; then
+	cd ${buildDir}/youcruit-server/youcruit-web
+	tar jcpf ${cacheDir}/node_cache/cache.tbz ./bower_components ./node ./node_modules
+  fi
+}
+
 install_maven() {
   local installDir=$1
   local buildDir=$2

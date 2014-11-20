@@ -25,6 +25,7 @@ curl --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common
 export_env_dir $ENV_DIR
 
 KEEP_M2_CACHE="true"
+KEEP_NODE_CACHE="true"
 
 if [ ! -d $CACHE_DIR ]; then
   KEEP_M2_CACHE="false"
@@ -45,6 +46,12 @@ echo -n "-----> Installing OpenJDK ${javaVersion}..."
 install_java ${BUILD_DIR} ${javaVersion}
 jdk_overlay ${BUILD_DIR}
 echo " done"
+
+if [ "true" == $KEEP_NODE_CACHE ]; then
+echo -n "-----> Checking for NODE / Gulp cache..."
+restore_node_cache ${CACHE_DIR} ${BUILD_DIR}
+echo " done"
+fi
 
 # change to cache dir to install maven
 cd $CACHE_DIR
@@ -90,6 +97,11 @@ if [ "true" == $KEEP_M2_CACHE ]; then
   for DIR in ".m2" ".maven" ; do
     cp -r $CACHE_DIR/$DIR $DIR
   done
+fi
+
+# update the node / gulp cache
+if [ "true" == $KEEP_NODE_CACHE ]; then
+  update_node_cache ${CACHE_DIR} ${BUILD_DIR}
 fi
 
 logger -p user.notice -t "slugc[$$]" "language_pack_java java_compile_end $LOGGER_FLAGS"
