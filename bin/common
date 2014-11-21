@@ -2,56 +2,66 @@
 
 DEFAULT_MAVEN_VERSION="3.2.3"
 
+env_check() {
+  ${BUILDPACK_AWS_KEY:?"Need to set BUILDPACK_AWS_KEY non-empty"}
+  ${BUILDPACK_AWS_SECRET:?"Need to set BUILDPACK_AWS_SECRET non-empty"}
+}
+
 restore_node_cache() {
   local buildDir=$1
-  file=cache.tbz
-  bucket=youcruit-us-cache
-  resource="/${bucket}/node_cache/${file}"
-  contentType="application/x-compressed-tar"
-  dateValue=`date -R`
-  stringToSign="GET\n\n${contentType}\n${dateValue}\n${resource}"
-  s3Key=$AWS_KEY
-  s3Secret=$AWS_SECRET
-  signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
-  echo -n "-----> Accesing S3 using api key $AWS_KEY"
-  curl -f -o ${buildDir}/youcruit-server/youcruit-web/${file} -X GET \
+  local file=cache.tbz
+  local bucket=youcruit-us-cache
+  local resource="/${bucket}/node_cache/${file}"
+  local contentType="application/x-compressed-tar"
+  local dateValue=`date -R`
+  local stringToSign="GET\n\n${contentType}\n${dateValue}\n${resource}"
+  local s3Key=${BUILDPACK_AWS_KEY}
+  local s3Secret=${BUILDPACK_AWS_SECRET}
+
+  local signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
+  echo -n "-----> Accesing S3 using api key ${BUILDPACK_AWS_KEY}"
+  local response = $(curl --silent --output ${buildDir}/youcruit-server/youcruit-web/${file} -X GET \
    -H "Host: ${bucket}.s3.amazonaws.com" \
    -H "Date: ${dateValue}" \
    -H "Content-Type: ${contentType}" \
    -H "Authorization: AWS ${s3Key}:${signature}" \
-   https://${bucket}.s3.amazonaws.com/node_cache/${file}
-  if [ -f ${buildDir}/${file} }; then
+   https://${bucket}.s3.amazonaws.com/node_cache/${file})
+  if [ response -eq 200 ]; then
 	cd ${buildDir}/youcruit-server/youcruit-web
 	tar jxpf ${file}
 	echo -n "-----> Expanded cache to ${buildDir}..."
   else 
-	echo -n "-----> No cache file found on S3..."
+	echo -n "-----> No cache file found on S3 response ${response}..."
   fi
 }
 
 
 update_node_cache() {
   local buildDir=$1
-  file=cache.tbz
+  local file=cache.tbz
   cd ${buildDir}/youcruit-server/youcruit-web
   tar jcpf ${file} ./bower_components ./node ./node_modules
 
-  bucket=youcruit-us-cache
-  resource="/${bucket}/node_cache/${file}"
-  contentType="application/x-compressed-tar"
-  dateValue=`date -R`
-  stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
-  s3Key=$AWS_KEY
-  s3Secret=$AWS_SECRET
-  signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
-  echo -n "-----> Accesing S3 using api key $AWS_KEY"
-  curl -X PUT -T "${file}" \
+  local bucket=youcruit-us-cache
+  local resource="/${bucket}/node_cache/${file}"
+  local contentType="application/x-compressed-tar"
+  local dateValue=`date -R`
+  local stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
+  local s3Key=$AWS_KEY
+  local s3Secret=$AWS_SECRET
+  local signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
+  echo -n "-----> Accesing S3 using api key ${BUILDPACK_AWS_KEY}"
+  local response=$(curl --silent -X PUT -T "${file}" \
   -H "Host: ${bucket}.s3.amazonaws.com" \
   -H "Date: ${dateValue}" \
   -H "Content-Type: ${contentType}" \
   -H "Authorization: AWS ${s3Key}:${signature}" \
-  https://${bucket}.s3.amazonaws.com/node_cache/${file}
-  echo -n "-----> Uploaded cache file to S3..."
+  https://${bucket}.s3.amazonaws.com/node_cache/${file})
+  if [ response -eq 200 ]; then
+  	echo -n "-----> Uploaded cache file to S3..."
+  else 
+	echo -n "-----> Failed to upload node cache to S3 with response code ${response}..."
+  fi
 }
 
 install_maven() {
