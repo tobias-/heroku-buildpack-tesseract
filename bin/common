@@ -14,7 +14,7 @@ restore_node_cache() {
   local s3Secret=${BUILDPACK_AWS_SECRET}
 
   local signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
-  echo "-----> Accesing S3 using api key ${BUILDPACK_AWS_KEY}"
+  echo " accesing S3 using api key ${BUILDPACK_AWS_KEY}"
   local response=$(curl --write-out %{http_code} --silent --output ${buildDir}/youcruit-server/youcruit-web/${file} -X GET \
    -H "Host: ${bucket}.s3.amazonaws.com" \
    -H "Date: ${dateValue}" \
@@ -24,9 +24,9 @@ restore_node_cache() {
   if [ "$response" =  "200" ]; then
 	cd ${buildDir}/youcruit-server/youcruit-web
 	tar jxpf ${file}
-	echo "-----> Expanded cache to ${buildDir}..."
+	echo "-----> Expanded cache to ${buildDir}/youcruit-server/youcruit-web ... done"
   else 
-	echo "-----> No cache file found on S3 response ${response}..."
+	echo "-----> No cache file found on S3 response: $response"
   fi
 }
 
@@ -57,7 +57,7 @@ update_node_cache() {
   if [ "$response" = "200" ]; then
   	echo " Uploaded cache file to S3..."
   else 
-	echo " Failed to upload node cache to S3 with response code ${response}..."
+	echo " Failed to upload node cache to S3 with response code $response"
   fi
 }
 
