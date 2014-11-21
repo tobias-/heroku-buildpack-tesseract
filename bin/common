@@ -15,13 +15,13 @@ restore_node_cache() {
 
   local signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
   echo "-----> Accesing S3 using api key ${BUILDPACK_AWS_KEY}"
-  local response=$(curl --silent --output ${buildDir}/youcruit-server/youcruit-web/${file} -X GET \
+  local response=$(curl --write-out %{http_code} --silent --output ${buildDir}/youcruit-server/youcruit-web/${file} -X GET \
    -H "Host: ${bucket}.s3.amazonaws.com" \
    -H "Date: ${dateValue}" \
    -H "Content-Type: ${contentType}" \
    -H "Authorization: AWS ${s3Key}:${signature}" \
    https://${bucket}.s3.amazonaws.com/node_cache/${file})
-  if [ ${response} -eq 200 ]; then
+  if [ response -eq 200 ]; then
 	cd ${buildDir}/youcruit-server/youcruit-web
 	tar jxpf ${file}
 	echo "-----> Expanded cache to ${buildDir}..."
@@ -48,13 +48,13 @@ update_node_cache() {
   local s3Secret=${BUILDPACK_AWS_SECRET}
   local signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
   echo -n "-----> Accesing S3 using api key ${BUILDPACK_AWS_KEY}: "
-  local response=$(curl --silent -X PUT -T "${file}" \
+  local response=$(curl --write-out %{http_code} --silent -X PUT -T "${file}" \
   -H "Host: ${bucket}.s3.amazonaws.com" \
   -H "Date: ${dateValue}" \
   -H "Content-Type: ${contentType}" \
   -H "Authorization: AWS ${s3Key}:${signature}" \
   https://${bucket}.s3.amazonaws.com/node_cache/${file})
-  if [ ${response} -eq 200 ]; then
+  if [ response -eq 200 ]; then
   	echo " Uploaded cache file to S3..."
   else 
 	echo " Failed to upload node cache to S3 with response code ${response}..."
