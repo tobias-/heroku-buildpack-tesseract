@@ -8,7 +8,9 @@ restore_node_cache() {
   if [ ! -d ${cacheDir}/node_cache ]; then
 	mkdir -p ${cacheDir}/node_cache
   else 
-	tar jxpf ${cacheDir}/node_cache/cache.tbz ${buildDir}/youcruit-server/youcruit-web/
+    if [ -d ${cacheDir}/node_cache/cache.tbz ]; then
+	  tar jxpf ${cacheDir}/node_cache/cache.tbz ${buildDir}/youcruit-server/youcruit-web/
+    fi
   fi
 }
 
