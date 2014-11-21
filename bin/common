@@ -2,11 +2,6 @@
 
 DEFAULT_MAVEN_VERSION="3.2.3"
 
-env_check() {
-  ${BUILDPACK_AWS_KEY:?"Need to set BUILDPACK_AWS_KEY non-empty"}
-  ${BUILDPACK_AWS_SECRET:?"Need to set BUILDPACK_AWS_SECRET non-empty"}
-}
-
 restore_node_cache() {
   local buildDir=$1
   local file=cache.tbz

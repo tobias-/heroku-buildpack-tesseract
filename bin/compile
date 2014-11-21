@@ -23,7 +23,6 @@ curl --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common
 . /tmp/jvm-common/bin/java
 
 export_env_dir $ENV_DIR
-env_check 
 
 KEEP_M2_CACHE="true"
 KEEP_NODE_CACHE="true"
