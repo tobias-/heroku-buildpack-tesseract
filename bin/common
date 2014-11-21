@@ -16,7 +16,7 @@ restore_node_cache() {
 update_node_cache() {
   local cacheDir=$1
   local buildDir=$2
-  if [ -d ${cacheDirs}/node_cache ]; then
+  if [ -d ${cacheDir}/node_cache ]; then
 	cd ${buildDir}/youcruit-server/youcruit-web
 	tar jcpf ${cacheDir}/node_cache/cache.tbz ./bower_components ./node ./node_modules
   fi
