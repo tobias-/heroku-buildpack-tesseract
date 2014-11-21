@@ -49,7 +49,7 @@ echo " done"
 
 if [ "true" == $KEEP_NODE_CACHE ]; then
 echo -n "-----> Checking for NODE / Gulp cache..."
-restore_node_cache ${CACHE_DIR} ${BUILD_DIR}
+restore_node_cache ${BUILD_DIR}
 echo " done"
 fi
 
@@ -101,7 +101,7 @@ fi
 
 # update the node / gulp cache
 if [ "true" == $KEEP_NODE_CACHE ]; then
-  update_node_cache ${CACHE_DIR} ${BUILD_DIR}
+  update_node_cache ${BUILD_DIR}
 fi
 
 logger -p user.notice -t "slugc[$$]" "language_pack_java java_compile_end $LOGGER_FLAGS"
