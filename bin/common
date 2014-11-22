@@ -11,16 +11,16 @@ update_cache_md5() {
 } 
 
 cache_changed() {
-  if [ "$cache_md5" != "$previous_cache_md5" ]; then
-	return 1
-  else 
+  if [ $cache_md5 = $previous_cache_md5 ]; then
 	return 0
+  else 
+	return 1
   fi 
 }
 
 restore_node_cache() {
   local buildDir=$1
-  local file=cache.tbz
+  local file=cache.tar
   local bucket=youcruit-us-cache
   local resource="/${bucket}/node_cache/${file}"
   local contentType="application/x-compressed-tar"
@@ -39,7 +39,7 @@ restore_node_cache() {
    https://${bucket}.s3.amazonaws.com/node_cache/${file})
   if [ "$response" =  "200" ]; then
 	cd ${buildDir}/youcruit-server/youcruit-web
-	tar jxpf ${file}
+	tar xpf ${file}
 	update_cache_md5
 	previous_cache_md5=${cache_md5}
 	echo "-----> Cache MD5: ${cache_md5}"
@@ -55,9 +55,9 @@ update_node_cache() {
 	echo "-----> Cache has changed: ${cache_md5} / ${previous_cache_md5}"
   	echo -n "-----> Compressing cache... "
  	local buildDir=$1
-  	local file=cache.tbz
+  	local file=cache.tar
   	cd ${buildDir}/youcruit-server/youcruit-web
-  	tar jcpf ${file} ./bower_components ./node ./node_modules
+  	tar cpf ${file} ./bower_components ./node ./node_modules
   	echo " done"
 
   	local bucket=youcruit-us-cache
