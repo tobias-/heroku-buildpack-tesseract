@@ -11,7 +11,7 @@ update_cache_md5() {
 } 
 
 cache_changed() {
-  if [ $cache_md5 = $previous_cache_md5 ]; then
+  if [ "$cache_md5" != "$previous_cache_md5" ]; then
 	return 0
   else 
 	return 1
