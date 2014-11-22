@@ -5,7 +5,9 @@ cache_md5=0
 previous_cache_md5=0
 
 update_cache_md5() {
-  cache_md5=`ls -lR ./node/ ./node_moduled/ ./bower_components/ | md5sum`
+  if [ -d ./node ]; then
+  	cache_md5=`ls -lR ./node/ ./node_modules/ ./bower_components/ | md5sum`
+  fi
 } 
 
 cache_changed() {
