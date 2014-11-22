@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 
 DEFAULT_MAVEN_VERSION="3.2.3"
+cache_md5=0
+previous_cache_md5=0
+
+update_cache_md5() {
+  cache_md5=`ls -lR ./node/ ./node_moduled/ ./bower_components/ | md5`
+} 
+
+cache_changed() {
+  if [ ${cache_md5} != ${previous_cache_md5} ]; then
+	return 1
+  else 
+	return 0
+  fi 
+}
 
 restore_node_cache() {
   local buildDir=$1
@@ -24,6 +38,9 @@ restore_node_cache() {
   if [ "$response" =  "200" ]; then
 	cd ${buildDir}/youcruit-server/youcruit-web
 	tar jxpf ${file}
+	update_cache_md5
+	previous_cache_md5=${cache_md5}
+	echo "-----> Cache MD5: ${cache_md5}"
 	echo "-----> Expanded cache to ${buildDir}/youcruit-server/youcruit-web ... done"
   else 
 	echo "-----> No cache file found on S3 response: $response"
@@ -32,32 +49,37 @@ restore_node_cache() {
 
 
 update_node_cache() {
-  echo -n "-----> Compressing cache... "
-  local buildDir=$1
-  local file=cache.tbz
-  cd ${buildDir}/youcruit-server/youcruit-web
-  tar jcpf ${file} ./bower_components ./node ./node_modules
-  echo " done"
+  if cache_changed; then
+	echo "-----> Cache has changed: ${cache_md5} / ${previous_cache_md5}"
+  	echo -n "-----> Compressing cache... "
+ 	local buildDir=$1
+  	local file=cache.tbz
+  	cd ${buildDir}/youcruit-server/youcruit-web
+  	tar jcpf ${file} ./bower_components ./node ./node_modules
+  	echo " done"
 
-  local bucket=youcruit-us-cache
-  local resource="/${bucket}/node_cache/${file}"
-  local contentType="application/x-compressed-tar"
-  local dateValue=`date -R`
-  local stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
-  local s3Key=${BUILDPACK_AWS_KEY}
-  local s3Secret=${BUILDPACK_AWS_SECRET}
-  local signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
-  echo -n "-----> Accesing S3 using api key ${BUILDPACK_AWS_KEY}: "
-  local response=$(curl --write-out %{http_code} --silent -X PUT -T "${file}" \
-  -H "Host: ${bucket}.s3.amazonaws.com" \
-  -H "Date: ${dateValue}" \
-  -H "Content-Type: ${contentType}" \
-  -H "Authorization: AWS ${s3Key}:${signature}" \
-  https://${bucket}.s3.amazonaws.com/node_cache/${file})
-  if [ "$response" = "200" ]; then
-  	echo " Uploaded cache file to S3..."
-  else 
-	echo " Failed to upload node cache to S3 with response code $response"
+  	local bucket=youcruit-us-cache
+  	local resource="/${bucket}/node_cache/${file}"
+  	local contentType="application/x-compressed-tar"
+  	local dateValue=`date -R`
+  	local stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
+  	local s3Key=${BUILDPACK_AWS_KEY}
+  	local s3Secret=${BUILDPACK_AWS_SECRET}
+  	local signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
+  	echo -n "-----> Accesing S3 using api key ${BUILDPACK_AWS_KEY}: "
+  	local response=$(curl --write-out %{http_code} --silent -X PUT -T "${file}" \
+  	-H "Host: ${bucket}.s3.amazonaws.com" \
+  	-H "Date: ${dateValue}" \
+  	-H "Content-Type: ${contentType}" \
+  	-H "Authorization: AWS ${s3Key}:${signature}" \
+  	https://${bucket}.s3.amazonaws.com/node_cache/${file})
+  	if [ "$response" = "200" ]; then
+  		echo " Uploaded cache file to S3..."
+  	else 
+		echo " Failed to upload node cache to S3 with response code $response"
+  	fi
+  else
+	echo "-----> No cache change not updating: ${cache_md5} / ${previous_cache_md5}"
   fi
 }
 
