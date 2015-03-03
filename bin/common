@@ -51,6 +51,7 @@ restore_node_cache() {
 
 
 update_node_cache() {
+  update_cache_md5
   if cache_changed; then
 	  echo "-----> Cache has changed: ${cache_md5} / ${previous_cache_md5}"
     echo -n "-----> Compressing cache... "
@@ -87,10 +88,12 @@ update_node_cache() {
     rm ${file}
     echo " Ahhhh done!"
   else
+    local buildDir=$1
+    cd ${buildDir}/youcruit-server/youcruit-web
+    echo "-----> No cache change not updating: ${cache_md5} / ${previous_cache_md5}"
     echo -n "-----> Removing old artefacts... "
     rm -rf ./bower_components ./node ./node_modules
     echo " done"
-	  echo "-----> No cache change not updating: ${cache_md5} / ${previous_cache_md5}"
   fi
 }
 
