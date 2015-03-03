@@ -82,15 +82,15 @@ update_node_cache() {
   	else 
 		  echo " Failed to upload node cache to S3 with response code $response"
   	fi
-    echo -n " Wiping my arse... "
-    rm ${file}
-    echo " Ahhhh done!"
   else
     echo "-----> No cache change not updating: ${cache_md5} / ${previous_cache_md5}"
   fi
   echo -n "-----> Removing old artefacts... "
   rm -rf ./bower_components ./node ./node_modules
   echo " done"
+  echo -n "-----> Wiping my arse... "
+  rm ${file}
+  echo " Ahhhh done!"
 }
 
 install_maven() {
