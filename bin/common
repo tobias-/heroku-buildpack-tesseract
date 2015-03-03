@@ -52,13 +52,16 @@ restore_node_cache() {
 
 update_node_cache() {
   if cache_changed; then
-	echo "-----> Cache has changed: ${cache_md5} / ${previous_cache_md5}"
-  	echo -n "-----> Compressing cache... "
- 	local buildDir=$1
+	  echo "-----> Cache has changed: ${cache_md5} / ${previous_cache_md5}"
+    echo -n "-----> Compressing cache... "
+ 	  local buildDir=$1
   	local file=cache.tar
   	cd ${buildDir}/youcruit-server/youcruit-web
   	tar cpf ${file} ./bower_components ./node ./node_modules
   	echo " done"
+    echo -n "-----> Removing old artefacts... "
+    rm -rf ./bower_components ./node ./node_modules
+    echo " done"
 
   	local bucket=youcruit-us-cache
   	local resource="/${bucket}/node_cache/${file}"
@@ -78,10 +81,16 @@ update_node_cache() {
   	if [ "$response" = "200" ]; then
   		echo " Uploaded cache file to S3..."
   	else 
-		echo " Failed to upload node cache to S3 with response code $response"
+		  echo " Failed to upload node cache to S3 with response code $response"
   	fi
+    echo -n " Wiping my arse... "
+    rm ${file}
+    echo " Ahhhh done!"
   else
-	echo "-----> No cache change not updating: ${cache_md5} / ${previous_cache_md5}"
+    echo -n "-----> Removing old artefacts... "
+    rm -rf ./bower_components ./node ./node_modules
+    echo " done"
+	  echo "-----> No cache change not updating: ${cache_md5} / ${previous_cache_md5}"
   fi
 }
 
