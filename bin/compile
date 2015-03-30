@@ -24,7 +24,7 @@ curl --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common
 
 export_env_dir $ENV_DIR
 
-KEEP_M2_CACHE="true"
+KEEP_M2_CACHE="false"
 KEEP_NODE_CACHE="true"
 
 if [ ! -d $CACHE_DIR ]; then
