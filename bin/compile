@@ -24,7 +24,7 @@ curl --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common
 
 export_env_dir $ENV_DIR
 
-KEEP_M2_CACHE="false"
+KEEP_M2_CACHE="true"
 KEEP_NODE_CACHE="true"
 
 if [ ! -d $CACHE_DIR ]; then
@@ -77,7 +77,7 @@ cd $BUILD_DIR
 export MAVEN_OPTS="-Xmx1024m"
 
 # build app
-BUILDCMD="$CACHE_DIR/.maven/bin/mvn -U -B -Duser.home=$BUILD_DIR -Dmaven.repo.local=$CACHE_DIR/.m2/repository_new $MAVEN_SETTINGS_OPT -DskipTests=true clean install"
+BUILDCMD="$CACHE_DIR/.maven/bin/mvn -U -B -Duser.home=$BUILD_DIR -Dmaven.repo.local=$CACHE_DIR/.m2/repository $MAVEN_SETTINGS_OPT -DskipTests=true clean install"
 echo "-----> executing $BUILDCMD"
 
 $BUILDCMD 2>&1 | sed -u 's/^/       /'
