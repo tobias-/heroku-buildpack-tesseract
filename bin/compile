@@ -53,7 +53,7 @@ restore_node_cache ${BUILD_DIR}
 echo " done"
 fi
 
-BUILD_DIR="$BUILD_DIR" ./compile_tesseract.sh
+BUILD_DIR="$BUILD_DIR" "${BIN_DIR}/compile_tesseract.sh"
 
 # change to cache dir to install maven
 cd $CACHE_DIR
