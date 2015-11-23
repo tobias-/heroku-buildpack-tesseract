@@ -80,7 +80,7 @@ cd $BUILD_DIR
 
 export MAVEN_OPTS="-Xmx1024m"
 
-find /app ${BUILD_DIR}
+ls -la /app ${BUILD_DIR}
 
 # build app
 BUILDCMD="$CACHE_DIR/.maven/bin/mvn -U -B -Duser.home=$BUILD_DIR -Dmaven.repo.local=$CACHE_DIR/.m2/repository $MAVEN_SETTINGS_OPT -DskipTests=true clean install"
