@@ -4,7 +4,6 @@
 # fail fast
 set -e
 
-set -x
 
 logger -p user.notice -t "slugc[$$]" "language_pack_java java_compile_start"
 
@@ -25,6 +24,7 @@ curl --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common
 . /tmp/jvm-common/bin/java
 
 export_env_dir $ENV_DIR
+set -x
 
 KEEP_M2_CACHE="true"
 KEEP_NODE_CACHE="true"
@@ -79,6 +79,10 @@ fi
 cd $BUILD_DIR
 
 export MAVEN_OPTS="-Xmx1024m"
+
+echo "JAVA_HOME=$JAVA_HOME"
+
+export JAVA_HOME="${BUILD_DIR}/.jdk/"
 
 ls -la /app ${BUILD_DIR}
 
