@@ -4,6 +4,8 @@
 # fail fast
 set -e
 
+set -x
+
 logger -p user.notice -t "slugc[$$]" "language_pack_java java_compile_start"
 
 BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
