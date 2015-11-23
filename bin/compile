@@ -82,7 +82,7 @@ export MAVEN_OPTS="-Xmx1024m"
 
 ls -la /app ${BUILD_DIR}
 
-ln -s "${JAVA_HOME}" /app/.jdk/
+ln -s "${JAVA_HOME}" /app/
 
 # build app
 BUILDCMD="$CACHE_DIR/.maven/bin/mvn -U -B -Duser.home=$BUILD_DIR -Dmaven.repo.local=$CACHE_DIR/.m2/repository $MAVEN_SETTINGS_OPT -DskipTests=true clean install"
