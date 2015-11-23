@@ -4,7 +4,7 @@ leptonica_version="1.72"
 tesseract_version="3.04.00"
 tesseract_languages=(swe eng dan)
 
-if  ! wget -O- "https://s3.amazonaws.com/youcruit-us-cache/tesseract/tesseract_${tessract_version}.tbz2" | tar jx -C "${BUILD_DIR}"; then
+if  ! wget -O- "https://s3.amazonaws.com/youcruit-us-cache/tesseract/tesseract_${tesseract_version}.tbz2" | tar jx -C "${BUILD_DIR}"; then
   TESS_BUILD="$(mktemp -d)"
   echo "$TESS_BUILD"
   export CPPFLAGS="-I${BUILD_DIR}/include"
